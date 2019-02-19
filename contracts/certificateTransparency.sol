@@ -37,12 +37,12 @@ contract CertificateTransparency{
         certificates[hashedUrl] = inputCert;
     }
     
-    function getCertificate(bytes hashedUrl) public onlyOwner return (Certificate) {
+    function getCertificate(bytes hashedUrl) public return (Certificate) {
         return certificates[hashedUrl]
     }
 
     //Add functionality to check if certficate is already added
-    function add(string _url, string _certificate, address owner) public {
+    function add(string _url, string _certificate, address owner) public onlyOwner {
         bytes hashedInput = keccak256(_toLower(_url));
         bytes certHash = sha256(_certificate);
         Certificate oldCert = Certificates.get(hashedInput);
