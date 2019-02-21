@@ -52,7 +52,6 @@ contract CertificateTransparency{
     }
 
     function check(bytes hashedUrl, string _certificate) public view returns (bool) {
-        require(address(cert) == address(0x0));
         Certificate cert = getCertificate(hashedUrl);
         bytes hashedCert = sha256(_certificate);
         return cert.getCertHash() == hashedCert;
