@@ -46,17 +46,9 @@ contract CertificateTransparency{
         bytes hashedInput = keccak256(_toLower(_url));
         bytes certHash = sha256(_certificate);
         Certificate oldCert = Certificates.get(hashedInput);
-
-        if (oldCert == address(0x0)) {
-            setCertificate(Certificate(owner, hashedInput, certHash), hashedInput);
-        } else {
-            if (oldCert.getOwner() == owner) {
-                setCertificate(Certificate(owner, hashedInput, certHash), hashedInput);
-            }
-            else {
-                throw;
-            }
-        }
+        require(oldCert.getOwner() == owner));
+        
+        setCertificate(Certificate(owner, hashedInput, certHash), hashedInput);
     }
 
     function check(bytes hashedUrl, string _certificate) public view returns (bool) {
