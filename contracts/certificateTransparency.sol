@@ -1,5 +1,7 @@
 pragma solidity ^0.4.22;
 
+import "MinDAO.sol";
+
 contract CertificateTransparency{
     struct Certificate {
         //Owner might need to be specified by something other than an address in the future

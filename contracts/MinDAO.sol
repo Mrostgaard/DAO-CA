@@ -1,4 +1,4 @@
-pragma solidity 0.5.3;
+pragma solidity ^0.5.3;
 
 //The minimally viable DAO.
 //Has the following functionality:
@@ -9,7 +9,7 @@ pragma solidity 0.5.3;
 
 contract MinDAO {
     address initialOwner;
-    mapping (address => bool) isMember;
+    mapping (address => bool) addressIsMember;
     mapping (uint => Proposal) proposals;
     uint numMembers;
     uint numProposals;
@@ -22,42 +22,45 @@ contract MinDAO {
         mapping(address => bool) hasVoted;
     }
 
-    MinDAO() {
-        initialOwner = msg.sender();
+    constructor() public {
+        initialOwner = msg.sender;
         numMembers = 1;
         numProposals = 0;
-        isMember.set(initialOwner, true);
+        addressIsMember[initialOwner] = true;
     }
 
-    function proposeNewMember(address newMember) return (uint){
-        Proposal prop = Proposal(newMember, 0, 0, new mapping(address => bool), false);
-        proposals.set(numProposals, prop);
+    modifier onlyMember(){
+        require(addressIsMember[msg.sender]);
+        _;
+    }
+
+    function proposeNewMember(address newMember) external onlyMember returns (uint) {
+        Proposal memory prop = Proposal(newMember, 0, 0, false);
+        proposals[numProposals] = prop;
         numProposals++;
         return numProposals - 1;
     }
  
-    function proposeKickMember(address kickMember) return (uint){
-        Proposal prop = Proposal(kickMember, 0, 0, new mapping(address => bool), true);
-        proposals.set(numProposals, prop);
+    function proposeKickMember(address kickMember) external onlyMember returns (uint){
+        Proposal memory prop = Proposal(kickMember, 0, 0, true);
+        proposals[numProposals] = prop;
         numProposals++;
         return numProposals - 1;
     }
 
-    function vote(uint id, bool voteYes) {
-        Proposal prop = proposals.get(id);
-        require(prop.subject != address(0x0));
-        require(!prop.hasVoted.get(msg.sender));
+    function vote(uint id, bool voteYes) external onlyMember {
+        require(proposals[id].subject != address(0x0));
+        require(!proposals[id].hasVoted[msg.sender]);
         
+        proposals[id].hasVoted[msg.sender] = true;
         if(voteYes){
-            prop = Proposal(prop.subject, prop.yays+1, prop.nays, prop.isKick, prop.hasVoted.set(msg.sender, true));
+            proposals[id].yays = proposals[id].yays+1;
         } else {
-            prop = Proposal(prop.subject, prop.yays, prop.nays+1, prop.isKick, prop.hasVoted.set(msg.sender, true));
+            proposals[id].yays = proposals[id].nays+1;
         }
 
-        proposals.set(id, prop);
-
-        if(prop.yays > numMembers / 2){
-            isMember.set(prop.subject, !prop.isKick);
+        if(proposals[id].yays > numMembers / 2){
+            addressIsMember[proposals[id].subject] = !proposals[id].isKick;
         }
     }
 }
