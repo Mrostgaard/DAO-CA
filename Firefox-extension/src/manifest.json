@@ -1,0 +1,48 @@
+{
+  "manifest_version": 2,
+  "name": "DAO-CA CT Scanner",
+  "short_name": "Certificate Transperenacy blockchainscanner",
+  "version": "1.1.2",
+
+  "description": "Certainly Something is an advanced digital certificate viewer with an easy to use interface.",
+  "homepage_url": "https://github.com/Mrostgaard/DAO-CA",
+  "developer": {
+    "name": "Markus & Mark",
+    "url": "https://github.com/Mrostgaard/DAO-CA"
+  },
+
+  "icons": {
+    "48": "icons/secure.svg",
+    "96": "icons/secure.svg"
+  },
+
+  "applications": {
+    "gecko": {
+      "id": "a2fff151f5ad0ef63cbd7e454e8907c1fa9cc32008f489178775570374f408a7@pokeinthe.io",
+      "strict_min_version": "62.0"
+    }
+  },
+
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+
+  "page_action": {
+    "browser_style": true,
+    "default_icon": "icons/secure.svg",
+    "default_title": "DAO-CA CT Scanner",
+    "show_matches": ["https://*/*"],
+    "hide_matches": ["https://addons.mozilla.org/*"]
+  },
+
+  "permissions": [
+    "tabs",
+    "webNavigation",
+    "webRequest",
+    "webRequestBlocking",
+    "http://*/*",
+    "https://*/*"
+  ]
+}
