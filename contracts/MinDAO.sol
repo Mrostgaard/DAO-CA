@@ -38,12 +38,12 @@ contract MinDAO {
         _;
     }
 
-    function setCertificate(address certOwner, bytes32 certHash, bytes32 hashedUrl) external onlyMember {
-        ct.setCertificate(certOwner, certHash, hashedUrl);
+    function setCertificate(address _certOwner, bytes32 _certHash, bytes32 _hashedUrl) external onlyMember {
+        ct.setCertificate(_certOwner, _certHash, _hashedUrl);
     }
 
-    function add(string memory _url, string memory _certificate, address certOwner) external onlyOwner {
-        ct.add(_url, certificate, certOwner);
+    function add(string memory _url, string memory _certificate, address _certOwner) public onlyMember {
+        ct.add(_url, _certificate, _certOwner);
     }
 
     function proposeNewMember(address newMember) external onlyMember returns (uint) {
