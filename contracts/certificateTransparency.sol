@@ -1,6 +1,5 @@
 pragma solidity ^0.5.3;
 
-import "./MinDAO.sol";
 
 contract CertificateTransparency{
     struct Certificate {
@@ -27,8 +26,8 @@ contract CertificateTransparency{
         _;
     }
     
-    constructor(address _owner) public{
-        owner = _owner;
+    constructor() public{
+        owner = msg.sender;
         certNum = 0;
     }
     

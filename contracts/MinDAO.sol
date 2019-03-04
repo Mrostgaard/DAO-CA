@@ -7,8 +7,11 @@ pragma solidity ^0.5.3;
 // Needs the following added to interact with CT:
 // - Members of DAO may activate functionality in CT contract
 
+import "./certificateTransparency.sol";
+
 contract MinDAO {
     address initialOwner;
+    CertificateTransparency ct;
     mapping (address => bool) addressIsMember;
     mapping (uint => Proposal) proposals;
     uint numMembers;
@@ -22,16 +25,25 @@ contract MinDAO {
         mapping(address => bool) hasVoted;
     }
 
-    constructor() public {
+    constructor(address ctAddress) public {
         initialOwner = msg.sender;
         numMembers = 1;
         numProposals = 0;
         addressIsMember[initialOwner] = true;
+        ct = CertificateTransparency(ctAddress);
     }
 
     modifier onlyMember(){
         require(addressIsMember[msg.sender]);
         _;
+    }
+
+    function setCertificate(address certOwner, bytes32 certHash, bytes32 hashedUrl) external onlyMember {
+        ct.setCertificate(certOwner, certHash, hashedUrl);
+    }
+
+    function add(string memory _url, string memory _certificate, address certOwner) external onlyOwner {
+        ct.add(_url, certificate, certOwner);
     }
 
     function proposeNewMember(address newMember) external onlyMember returns (uint) {
