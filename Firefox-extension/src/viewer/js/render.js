@@ -94,6 +94,7 @@ const handleDOMContentLoaded = () => {
       }
 
       const securityInfo = await derParse(response);
+
       render(response);
     }
   );

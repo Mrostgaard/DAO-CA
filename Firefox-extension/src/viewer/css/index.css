@@ -18,6 +18,17 @@ h2 {
   margin: 0;
 }
 
+.green{
+  background-color: green;
+}
+.red{
+  background-color: red;
+}
+.yellow{
+  background-color: yellow;
+}
+
+
 .certificate .panel-section-header {
   border: 0;
 }

@@ -2,7 +2,7 @@ import * as asn1js from 'asn1js';
 import { Certificate } from 'pkijs';
 import { ctLogNames } from './ctlognames.js';
 import { strings } from './strings.js';
-import { b64urltodec, b64urltohex, getObjPath, hash, hashify, checkCertificate } from './utils.js';
+import { b64urltodec, b64urltohex, getObjPath, hash, hashify, verifyCertificate } from './utils.js';
 
 
 
@@ -121,7 +121,7 @@ export const parse = async (der) => {
     spki.y = hashify(b64urltohex(spki.y));             // y coordinate
     spki.xy = `04:${spki.x}:${spki.y}`;                // 04 (uncompressed) public key
   }
-  
+
   // get the keyUsages
   const keyUsages = {
     critical: criticalExtensions.includes('2.5.29.15'),
@@ -368,8 +368,8 @@ export const parse = async (der) => {
       'sha1': await hash('SHA-1', der.buffer),
       'sha256': await hash('SHA-256', der.buffer),
     },
-    tmp : {
-      'infura': await checkCertificate(await hash('SHA-256', der.buffer))
+    tmp: {
+      'infura': await verifyCertificate(await hash('SHA-256', der.buffer), san.altNames),
     },
     issuer: parseSubsidiary(x509.issuer.typesAndValues),
     notBefore: `${x509.notBefore.value.toLocaleString()} (${timeZone})`,
