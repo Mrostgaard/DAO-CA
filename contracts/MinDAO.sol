@@ -7,15 +7,30 @@ pragma solidity ^0.5.3;
 // Needs the following added to interact with CT:
 // - Members of DAO may activate functionality in CT contract
 
-import "./certificateTransparency.sol";
+import "./CertificateTransparency.sol";
 
 contract MinDAO {
     address initialOwner;
     CertificateTransparency ct;
     mapping (address => bool) addressIsMember;
     mapping (uint => Proposal) proposals;
+    mapping (uint => Request) requests;
     uint numMembers;
     uint numProposals;
+    uint numRequests;
+    // The maximum time afforded to answer a request. There are 604800 seconds in a week
+    uint REQUEST_DEADLINE = 604800;
+
+    struct Request {
+        address owner;
+        uint bounty;
+        uint expiry;
+        string URL;
+        address payable[] attesters;
+        uint16 numAttesters;
+        bool issued;
+        mapping (address => bool) hasAttested; //TODO: Replace this with a function that test for attestations.
+    }
 
     struct Proposal {
         address subject;
@@ -37,13 +52,73 @@ contract MinDAO {
         require(addressIsMember[msg.sender]);
         _;
     }
-
-    function setCertificate(address _certOwner, bytes32 _certHash, bytes32 _hashedUrl) external onlyMember {
+    
+    function setCertificate(address _certOwner, bytes32 _certHash, bytes32 _hashedUrl) internal onlyMember {
         ct.setCertificate(_certOwner, _certHash, _hashedUrl);
     }
+    
+    function toBytes(uint256 x) internal pure returns (bytes memory b) {
+        b = new bytes(32);
+        for (uint i = 0; i < 32; i++) {
+            b[i] = byte(uint8(x / (2**(8*(31 - i))))); 
+        }
+    }
 
-    function add(string memory _url, string memory _certificate, address _certOwner) public onlyMember {
-        ct.add(_url, _certificate, _certOwner);
+    //found @ https://ethereum.stackexchange.com/questions/32003/concat-two-bytes-arrays-with-assembly
+    function MergeBytes(bytes memory a, bytes memory b) public pure returns (bytes memory c) {
+        // Store the length of the first array
+        uint alen = a.length;
+        // Store the length of BOTH arrays
+        uint totallen = alen + b.length;
+        // Count the loops required for array a (sets of 32 bytes)
+        uint loopsa = (a.length + 31) / 32;
+        // Count the loops required for array b (sets of 32 bytes)
+        uint loopsb = (b.length + 31) / 32;
+        assembly {
+            let m := mload(0x40)
+            // Load the length of both arrays to the head of the new bytes array
+            mstore(m, totallen)
+            // Add the contents of a to the array
+            for {  let i := 0 } lt(i, loopsa) { i := add(1, i) } { mstore(add(m, mul(32, add(1, i))), mload(add(a, mul(32, add(1, i))))) }
+            // Add the contents of b to the array
+            for {  let i := 0 } lt(i, loopsb) { i := add(1, i) } { mstore(add(m, add(mul(32, add(1, i)), alen)), mload(add(b, mul(32, add(1, i))))) }
+            mstore(0x40, add(m, add(32, totallen)))
+            c := m
+        }
+    }
+
+    function requestCertificate(string memory _url) public payable {
+        //We require no minimum payment, as it is up to the attesters, whether or not they want to sign something.
+        requests[numRequests] = Request(msg.sender, msg.value, now + REQUEST_DEADLINE, _url, new address payable[](numMembers), 0, false);
+        numRequests += 1;
+    }
+
+    function attestCertificate(uint requestID) external onlyMember {
+        //If the member has alreay attested the CSR, they cannot attest it again.
+        require(!requests[requestID].hasAttested[msg.sender]);
+        requests[requestID].hasAttested[msg.sender] = true;
+        requests[requestID].attesters[requests[requestID].numAttesters] = msg.sender;
+        requests[requestID].numAttesters += 1;
+        //If more than half of the DAO members have attested a certificate, it is finalized on the spot.
+        if(requests[requestID].numAttesters > numMembers){
+            finalizeCertificate(requestID);
+        }
+    }
+
+    function finalizeCertificate(uint requestID) internal {
+        bytes32 hashedURL = keccak256(bytes(requests[requestID].URL));
+        bytes memory serialBytes = toBytes(requestID);
+        bytes memory expiryBytes = toBytes(requests[requestID].expiry);
+        bytes memory urlBytes = bytes(requests[requestID].URL);
+        bytes32 certificateHash = keccak256(MergeBytes(MergeBytes(serialBytes, expiryBytes),urlBytes));
+
+        setCertificate(requests[requestID].owner, certificateHash, hashedURL);
+        
+        uint numAttesters = requests[requestID].numAttesters;
+        for(uint i = 0; i < numAttesters; i++){
+            requests[requestID].attesters[i].send(requests[requestID].bounty/numAttesters);
+        }
+
     }
 
     function proposeNewMember(address newMember) external onlyMember returns (uint) {
@@ -76,3 +151,4 @@ contract MinDAO {
         }
     }
 }
+
