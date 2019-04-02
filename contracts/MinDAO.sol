@@ -26,6 +26,7 @@ contract MinDAO {
         uint bounty;
         uint expiry;
         string URL;
+        string certificate;
         address payable[] attesters;
         uint16 numAttesters;
         bool issued;
@@ -87,9 +88,9 @@ contract MinDAO {
         }
     }
 
-    function requestCertificate(string memory _url) public payable {
+    function requestCertificate(string memory _url, string memory _certificate) public payable {
         //We require no minimum payment, as it is up to the attesters, whether or not they want to sign something.
-        requests[numRequests] = Request(msg.sender, msg.value, now + REQUEST_DEADLINE, _url, new address payable[](numMembers), 0, false);
+        requests[numRequests] = Request(msg.sender, msg.value, now + REQUEST_DEADLINE, _url, _certificate,  new address payable[](numMembers), 0, false);
         numRequests += 1;
     }
 
@@ -107,10 +108,9 @@ contract MinDAO {
 
     function finalizeCertificate(uint requestID) internal {
         bytes32 hashedURL = keccak256(bytes(requests[requestID].URL));
-        bytes memory serialBytes = toBytes(requestID);
-        bytes memory expiryBytes = toBytes(requests[requestID].expiry);
+        bytes memory certificateBytes = bytes(requests[requestID].certificate);
         bytes memory urlBytes = bytes(requests[requestID].URL);
-        bytes32 certificateHash = keccak256(MergeBytes(MergeBytes(serialBytes, expiryBytes),urlBytes));
+        bytes32 certificateHash = keccak256(MergeBytes(certificateBytes, urlBytes));
 
         setCertificate(requests[requestID].owner, certificateHash, hashedURL);
         
