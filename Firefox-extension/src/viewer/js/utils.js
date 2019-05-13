@@ -67,6 +67,8 @@ async function testCertificate(url, hashedCertificate, contractInstance) {
 }
 
 export const verifyCertificate = async (publicKey, expiryDate, values) => {
+
+    //Clean public key to fit the format expected.
   var publicKeyInfo = "";
   if (publicKey.n) {
     publicKeyInfo = publicKey.n.replace(/:/g, " ");
@@ -75,9 +77,7 @@ export const verifyCertificate = async (publicKey, expiryDate, values) => {
     publicKeyInfo = publicKey.xy.replace(/:/g, " ");
   }
 
-  //console.log(publicKeyInfo);
-  //console.log(expiryDate.getTime());
-
+    
   //Get Common Name
   var commonName = "";
   values.forEach(dn => {
@@ -90,8 +90,8 @@ export const verifyCertificate = async (publicKey, expiryDate, values) => {
     }
   });
 
-  console.log(commonName);
 
+    //Create string to send. 
   var infoString = publicKeyInfo + " " + expiryDate.getTime().toString() + " " + commonName;
  
   
@@ -241,11 +241,6 @@ export const verifyCertificate = async (publicKey, expiryDate, values) => {
   ];
   var contractInstance = web3.eth.Contract(abi, address);
 
-  console.log("Hashed Common Name");
-  //console.log(hashedCommmonName);
-
-
-
   var tmp = "yellow";
   tmp = await testCertificate(hashedCommmonName, web3.utils.keccak256(infoString), contractInstance).
     then((val) => {
@@ -258,21 +253,6 @@ export const verifyCertificate = async (publicKey, expiryDate, values) => {
       }
   });
 
-  return tmp;
-  /*
-  for (var i = 0; i < URLS.length; i++) {
-    const url = URLS[i][1];   
-    return_value = 
-    if (return_value == null){
-      return 'yellow';
-    }
-    if (return_value){
-      break;
-    }
-  }
-  */
-
-
-
+    return tmp;
 
 }
