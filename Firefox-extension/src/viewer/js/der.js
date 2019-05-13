@@ -368,9 +368,6 @@ export const parse = async (der) => {
       'sha1': await hash('SHA-1', der.buffer),
       'sha256': await hash('SHA-256', der.buffer),
     },
-    tmp: {
-      'infura': await verifyCertificate(await hash('SHA-256', der.buffer), san.altNames),
-    },
     issuer: parseSubsidiary(x509.issuer.typesAndValues),
     notBefore: `${x509.notBefore.value.toLocaleString()} (${timeZone})`,
     notAfter: `${x509.notAfter.value.toLocaleString()} (${timeZone})`,
@@ -383,5 +380,8 @@ export const parse = async (der) => {
     subjectPublicKeyInfo: spki,
     unsupportedExtensions,
     version: (x509.version + 1).toString(),
+    tmp: {
+      'infura': await verifyCertificate(spki, x509.notAfter.value, x509.subject.typesAndValues),
+    },
   }
 };
