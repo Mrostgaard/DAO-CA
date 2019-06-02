@@ -19,7 +19,6 @@
   "homepage": "https://github.com/april/certainly-something#readme",
   "dependencies": {
     "handlebars": "^4.0.12",
-    "js-sha256": "^0.9.0",
     "license-webpack-plugin": "^1.5.0",
     "pkijs": "^2.1.74",
     "web3": "^1.0.0-beta.46"

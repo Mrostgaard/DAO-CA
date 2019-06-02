@@ -34,6 +34,7 @@ browser.webRequest.onErrorOccurred.addListener(
 // when it's first loaded, reload the page if it's an https page
 browser.runtime.onInstalled.addListener(async () => {
   const tabs = await browser.tabs.query({});
+
   // disable every inactive tab
   tabs.forEach(tab => {
     // disable the icon on every tab

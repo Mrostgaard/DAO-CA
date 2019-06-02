@@ -1,9 +1,9 @@
-<div id="template">
+<div id="template {{this.tmp.infura}}">
   {{! handshake }}
   <div class="row section" id="handshake">
     <div class="panel">
       <div class="panel-section panel-section-header">
-        <div class="text-section-header"><h1>Handshake</h1></div>
+        <div class="text-section-header"><h1>Handshake{{this.tmp.infura}}</h1></div>
       </div>
       <div class="panel-list-item">
         <div class="text">Protocol</div>
@@ -51,7 +51,7 @@
         {{/if}}
 
         {{#each certs}}
-        <div class="certificate" data-certificate-index="{{@index}}" {{#unless @first}}hidden{{/unless}}>
+        <div class="certificate {{this.tmp.infura}}" data-certificate-index="{{@index}}" {{#unless @first}}hidden{{/unless}}>
           {{! Subject }}
           <div class="panel-section-subheader">
             <span>Subject Name</span>
@@ -168,12 +168,12 @@
           </div>
 
           {{! Fingerprints }}
-          <div class="panel-section-subheader">
+          <div class="panel-section-subheader {{this.tmp.infura}}">
             <span>Fingerprints</span>
           </div>
           <div class="panel-list-item">
             <div class="text">SHA-256</div>
-            <div class="text long-hex long-hex-box">glee{{this.tmp.infura }}</div>
+            <div class="text long-hex long-hex-box">{{ this.fingerprint.sha256 }}</div>
           </div>
           <div class="panel-list-item">
             <div class="text">SHA-1</div>
