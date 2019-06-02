@@ -43,3 +43,4 @@ contract StakeableToken is BurnableToken {
         return release[staker];
     }
 }
+

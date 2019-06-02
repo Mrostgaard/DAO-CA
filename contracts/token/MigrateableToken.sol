@@ -15,7 +15,6 @@ contract MigrateableToken is StakeableToken {
             parent = address(0);
             isGenesis = _isGenesis;
             mint(_parent, 10*10**12);
-            mint(msg.sender, 10*10**13);
         } else {
             parent = _parent;
         }
@@ -26,9 +25,14 @@ contract MigrateableToken is StakeableToken {
         require(!isForked);
         return super.transfer(_to, _value);
     }
+    
+    function fork() public {
+        require(msg.sender == owner);
+        isForked = true;
+    }
 
     function mint(address migrater, uint amount) public{
-        //require(msg.sender == parent);
+        require(msg.sender == parent);
         totalSupply_ += amount;
         balances[migrater] += amount;
     }
@@ -39,4 +43,3 @@ contract MigrateableToken is StakeableToken {
         child.mint(msg.sender, amount);
     }
 }
-
