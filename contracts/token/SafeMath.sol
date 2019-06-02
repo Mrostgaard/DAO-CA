@@ -3,6 +3,8 @@ pragma solidity ^0.5.1;
 
 /**
  * @title SafeMath
+ * @Developed by OpenZeppelin
+ * @https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/math/SafeMath.sol
  * @dev Math operations with safety checks that throw on error
  */
 library SafeMath {
